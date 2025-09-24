@@ -1,35 +1,13 @@
 {
-  "name": "speakflow",
-  "version": "1.0.0",
-  "description": "Empty for the moment",
-  "main": "index.js",
-  "scripts": {
-    "dev": "ts-node-dev src/server.ts",
-    "start": "ts-node src/server.ts",
-    "test": "jest",
-    "test:watch": "jest --watch"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.3",
-    "@types/node": "^24.5.1",
-    "@types/socket.io": "^3.0.1",
-    "cors": "^2.8.5",
-    "dotenv": "^17.2.2",
-    "express": "^5.1.0",
-    "socket.io": "^4.8.1",
-    "socket.io-client": "^4.8.1",
-    "ts-node-dev": "^2.0.0",
-    "typescript": "^5.9.2",
-    "uuid": "^13.0.0"
+    "livekit-server-sdk": "^2.13.3"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
-    "jest": "^30.1.3",
-    "nodemon": "^3.1.10",
-    "ts-jest": "^29.4.4"
+    "@types/node": "^24.5.2"
+  },
+  "scripts": {
+    "dev": "ts-node-dev src/server.ts",
+    "start": "ts-node src/server.ts"
   }
 }
