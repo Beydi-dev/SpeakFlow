@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import { RoomServiceClient } from 'livekit-server-sdk';
+import { databaseService } from '../services/databaseService'
 
 dotenv.config();
 
