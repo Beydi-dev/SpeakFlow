@@ -9,28 +9,46 @@ function App() {
     const newSocket = io('http://localhost:3000')
     setSocket(newSocket)
 
-    newSocket.on('pong', (data) => { // On se prépare à ecouter le back
-      setResponse(`${data.message} (à ${data.timestamp})`) // Ce qu'on envoie au back pour la réponse
+    // Listener pong (ancien test)
+    newSocket.on('pong', (data) => {
+      setResponse(`${data.message} (à ${data.timestamp})`)
+    })
+
+    // ✅ AJOUTER : Listener room_joined
+    newSocket.on('room_joined', (data) => {
+      console.log('✅ Room joined! Token:', data.token)
+      console.log('Room:', data.room)
+      console.log('LiveKit URL:', data.livekitUrl)
+      setResponse(`Connecté à ${data.room} !`)
     })
 
     return () => {
-      newSocket.close();
+      newSocket.close()
     }
   }, [])
 
-  const handlePing = () => {
+  const handleTestJoinRoom = () => {
     if (socket) {
-      socket.emit('ping', { message: 'Hello depuis React!' })
+      socket.emit('join_room', {
+        room: 'test-room',
+        identity: 'TestUser'
+      })
     }
   }
 
   return (
     <div style={{ padding: '20px' }}>
       <h1>Test Socket.IO</h1>
-      <button onClick={handlePing}>🏓 Envoyer Ping</button>
-      {response && <div style={{ marginTop: '10px', background: '#f0f0f0', padding: '10px' }}>
-        <strong>Réponse:</strong> {response}
-      </div>}
+      
+      <button onClick={handleTestJoinRoom}>
+        🚪 Test Join Room
+      </button>
+      
+      {response && (
+        <div style={{ marginTop: '10px', padding: '10px', background: '#f0f0f0' }}>
+          <strong>Réponse :</strong> {response}
+        </div>
+      )}
     </div>
   )
 }
