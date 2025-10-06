@@ -1,56 +1,31 @@
-import { useEffect, useState } from 'react'
-import { io, Socket } from 'socket.io-client'
+import { useState } from "react";
+import JoinRoom from "./components/JoinRoom";
+import Room from "./components/Room";
+
 
 function App() {
-  const [socket, setSocket] = useState<Socket | null>(null)
-  const [response, setResponse] = useState<string>('')
+	// On créé d'abord les états
+	const [isConnected, setIsConnected] = useState(false);
+	const [token, setToken] = useState('');
+	const [roomName, setRoomName] = useState('');
+	const [livekitUrl, setLiveKitUrl] = useState('');
 
-  useEffect(() => {
-    const newSocket = io('http://localhost:3000')
-    setSocket(newSocket)
+	function handleJoinSuccess(token: string, room: string, livekitUrl: string) {
+		setIsConnected(true);
+		setToken(token);
+		setRoomName(room);
+		setLiveKitUrl(livekitUrl);
+	}
 
-    // Listener pong (ancien test)
-    newSocket.on('pong', (data) => {
-      setResponse(`${data.message} (à ${data.timestamp})`)
-    })
-
-    // ✅ AJOUTER : Listener room_joined
-    newSocket.on('room_joined', (data) => {
-      console.log('✅ Room joined! Token:', data.token)
-      console.log('Room:', data.room)
-      console.log('LiveKit URL:', data.livekitUrl)
-      setResponse(`Connecté à ${data.room} !`)
-    })
-
-    return () => {
-      newSocket.close()
-    }
-  }, [])
-
-  const handleTestJoinRoom = () => {
-    if (socket) {
-      socket.emit('join_room', {
-        room: 'test-room',
-        identity: 'TestUser'
-      })
-    }
-  }
-
-  return (
-    <div style={{ padding: '20px' }}>
-      <h1>Test Socket.IO</h1>
-      
-      <button onClick={handleTestJoinRoom}>
-        🚪 Test Join Room
-      </button>
-      
-      {response && (
-        <div style={{ marginTop: '10px', padding: '10px', background: '#f0f0f0' }}>
-          <strong>Réponse :</strong> {response}
-        </div>
-      )}
+	return (
+	  <div>
+        {isConnected ? (
+            <Room token={token} room={roomName} livekitUrl={livekitUrl} />
+        ) : (
+            <JoinRoom onJoinSuccess={handleJoinSuccess} />
+        )}
     </div>
-  )
+	);
 }
 
-export default App
+export default App;

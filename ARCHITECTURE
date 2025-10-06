@@ -1,17 +1,158 @@
-backend/
-├── src/
-│   ├── services/
-│   │   ├── queueService.ts         ← TON ALGO (inchangé)
-│   │   └── databaseService.ts      ← Connexion PostgreSQL
-│   ├── routes/                     ← API REST
-│   ├── controllers/               
-│   ├── socket/                     ← Socket.IO handlers
-│   ├── middleware/                
-│   ├── models/                     ← Classes UTILISATEUR, SALLE, STATISTIQUES
-│   └── server.ts                   
-├── database/
-│   ├── schema.sql                  ← Création des tables
-│   ├── migrations/                 ← Évolutions de schéma
-│   └── seeds.sql                   ← Données de test
-├── package.json
-└── tsconfig.json
+📁 SPEAKFLOW - ARCHITECTURE COMPLÈTE
+═══════════════════════════════════════════════════════════════════════════════════
+
+🌟 VUE D'ENSEMBLE
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                          SPEAKFLOW ARCHITECTURE                                 │
+│                                                                                 │
+│  👥 Frontend (React + Vite)  ←→  📡 WebSocket/Socket.IO  ←→  🔧 Backend (Node.js) │
+│                                                                                 │
+│            ↓                                               ↓                   │
+│     📺 LiveKit Client                                🎥 LiveKit Server          │
+│                                                                                 │
+│                              🗃️ Queue Management                                │
+│                               (In-Memory + Future DB)                          │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+🔗 STACK TECHNOLOGIQUE
+═════════════════════════════════════════════════════════════════════════════════════
+Frontend:   React 19.1.1 + TypeScript + Vite + TailwindCSS + Socket.IO Client
+Backend:    Node.js + Express + TypeScript + Socket.IO + LiveKit Server SDK
+Database:   En développement (PostgreSQL prévu)
+Real-time:  Socket.IO (coordination) + LiveKit (vidéo/audio)
+
+📂 STRUCTURE DÉTAILLÉE DU PROJET
+═════════════════════════════════════════════════════════════════════════════════════
+
+📁 SpeakFlow/
+├── 📋 package.json                    ← Dépendances globales (dotenv)
+├── 📄 README.md                       ← Documentation
+├── 📄 ARCHITECTURE                    ← Ce fichier
+├── 🧪 test.js                         ← Tests LiveKit
+├── 🚫 .gitignore                      ← Exclusions Git
+│
+├── 📁 backend/                        🔧 SERVEUR NODE.JS + TYPESCRIPT
+│   ├── 📋 package.json                ← Scripts: dev, start + dépendances
+│   ├── ⚙️ tsconfig.json               ← Config TypeScript (Node.js)
+│   ├── 🧪 jest.config.js              ← Config tests Jest
+│   ├── 🔐 .env                        ← Secrets LiveKit (API keys)
+│   │
+│   └── 📁 src/                        📡 CODE SOURCE BACKEND
+│       ├── 🚀 server.ts               ← Point d'entrée (Express + Socket.IO)
+│       │
+│       ├── 📁 controllers/            🎮 CONTRÔLEURS API REST
+│       │   └── 📄 queueController.ts  ← Logique queue (TODO: implement)
+│       │
+│       ├── 📁 services/               🔧 LOGIQUE MÉTIER
+│       │   ├── 🎯 queueService.ts     ← ✅ Algorithme de queue (COMPLET)
+│       │   └── 🗃️ databaseService.ts  ← Interface DB (TODO: implement)
+│       │
+│       ├── 📁 socket/                 📡 HANDLERS WEBSOCKET
+│       │   └── 📄 handlers.ts         ← ✅ join_room, LiveKit tokens (COMPLET)
+│       │
+│       ├── 📁 routes/                 🛣️ ROUTES API REST (TODO)
+│       ├── 📁 middleware/             🛡️ MIDDLEWARES (TODO)
+│       ├── 📁 models/                 📊 MODÈLES DE DONNÉES (TODO)
+│       │
+│       └── 📁 database/               🗃️ BASE DE DONNÉES (PLANIFIÉ)
+│           ├── 📁 implementations/    
+│           │   ├── 📄 memoryService.ts    ← Implementation temporaire
+│           │   └── 📄 postgreService.ts   ← Implementation PostgreSQL
+│           ├── 📄 schema.sql          ← Schéma des tables (TODO)
+│           ├── 📁 migrations/         ← Évolutions schéma (TODO)
+│           └── 📄 seeds.sql           ← Données de test (TODO)
+│
+├── 📁 frontend/                       👥 APPLICATION REACT + TYPESCRIPT
+│   ├── 📋 package.json                ← Scripts Vite + dépendances React
+│   ├── ⚙️ tsconfig.json               ← Config TypeScript principale
+│   ├── ⚙️ tsconfig.app.json           ← Config TypeScript app
+│   ├── ⚙️ tsconfig.node.json          ← Config TypeScript outils
+│   ├── ⚙️ vite.config.ts              ← Config Vite + React plugin
+│   ├── ⚙️ eslint.config.js            ← Config ESLint + TypeScript
+│   ├── 🌐 index.html                  ← Page HTML principale
+│   ├── 🚫 .gitignore                  ← Exclusions Git frontend
+│   │
+│   ├── 📁 public/                     📂 ASSETS STATIQUES
+│   │
+│   └── 📁 src/                        💻 CODE SOURCE FRONTEND
+│       ├── 🚀 main.tsx                ← Point d'entrée React
+│       ├── 📱 App.tsx                 ← ✅ Composant principal + Socket.IO test
+│       ├── 🎨 App.css                 ← Styles composant App
+│       ├── 🎨 index.css               ← Styles globaux
+│       │
+│       └── 📁 assets/                 🖼️ RESSOURCES (images, icons...)
+│
+└── 📁 node_modules/                   📦 DÉPENDANCES RACINE
+
+🔄 FLUX DE DONNÉES ACTUEL
+═════════════════════════════════════════════════════════════════════════════════════
+
+1️⃣ CONNEXION CLIENT
+   Frontend (React) → Socket.IO Client → Backend (Express + Socket.IO)
+
+2️⃣ JOINTURE ROOM
+   Client: socket.emit('join_room', {room, identity})
+   ↓
+   Backend: handlers.ts → createToken() → LiveKit AccessToken
+   ↓
+   Response: socket.emit('room_joined', {token, room, livekitUrl})
+
+3️⃣ GESTION QUEUE (Implémentée)
+   queueService.ts fournit:
+   • addToQueue(user) → position
+   • removeFromQueue(sid, room) → user supprimé
+   • getNextInQueue(room) → prochain utilisateur
+   • popFromQueue(room) → retire et retourne premier
+
+4️⃣ COMMUNICATION TEMPS RÉEL
+   Socket.IO (coordination) + LiveKit (media streaming)
+
+📊 ÉTAT D'AVANCEMENT
+═════════════════════════════════════════════════════════════════════════════════════
+
+✅ FONCTIONNEL
+• Serveur Express + Socket.IO
+• Client React + Socket.IO
+• Intégration LiveKit (tokens, rooms)
+• Algorithme de queue complet
+• Communication WebSocket basique
+
+🔄 EN DÉVELOPPEMENT
+• Interface utilisateur avancée
+• API REST controllers
+• Intégration queue ↔ socket handlers
+
+📝 TODO / PLANIFIÉ
+• Base de données PostgreSQL
+• Système d'authentification
+• Middlewares de sécurité
+• Models de données
+• Migrations DB
+• Tests unitaires complets
+• Interface queue management UI
+
+🔧 TECHNOLOGIES UTILISÉES
+═════════════════════════════════════════════════════════════════════════════════════
+
+Backend Dependencies:
+• express ^5.1.0                  ← Serveur web
+• socket.io ^4.8.1               ← WebSocket communication
+• livekit-server-sdk ^2.13.3     ← Génération tokens LiveKit
+• @types/* (TypeScript types)
+
+Frontend Dependencies:
+• react ^19.1.1                  ← Framework UI
+• socket.io-client ^4.8.1        ← Client WebSocket
+• livekit-client ^2.15.7         ← Client média temps réel
+• vite ^7.1.7                    ← Build tool
+• tailwindcss ^4.1.13           ← Framework CSS
+• typescript ~5.8.3             ← Langage typé
+
+🎯 PROCHAINES ÉTAPES RECOMMANDÉES
+═════════════════════════════════════════════════════════════════════════════════════
+
+1. Connecter queueService aux socket handlers
+2. Implémenter les controllers REST
+3. Créer l'interface utilisateur pour la queue
+4. Ajouter la persistance des données (PostgreSQL)
+5. Tests d'intégration complets

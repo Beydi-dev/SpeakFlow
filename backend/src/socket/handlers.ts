@@ -17,7 +17,7 @@ async function createToken (roomName: string, participantName:string) : Promise<
 		process.env.LIVEKIT_API_SECRET,
 		{
 			identity: participantName,
-			ttl: '10m' // Time to leave security
+			ttl: '10m' // Time To Leave security
 		}
 	);
 	at.addGrant({
@@ -62,7 +62,7 @@ export const setupSocketHandlers = (io: Server, socket: Socket) => {
         socket.to(data.room).emit('participant_joined', {
 			identity: data.identity
 		})
-        console.log(`📢 Informé les autres participants de ${data.room}`)
+        console.log(`📢 Informer les autres participants de ${data.room}`)
 
     } catch (error) {
         console.error('❌ Error:', error)
