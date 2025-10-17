@@ -1,4 +1,9 @@
-import { LiveKitRoom, RoomAudioRenderer } from "@livekit/components-react";
+import { LiveKitRoom } from "@livekit/components-react";
+import { RoomAudioRenderer } from "@livekit/components-react";
+//import ParticipantsList from "./ParticipantsList";
+import '@livekit/components-styles';
+import QueueDisplay from "./QueueDisplay";
+
 
 type RoomProps = {
 	token: string,
@@ -15,7 +20,8 @@ function Room({ token, room, livekitUrl }: RoomProps) {
 			connect={true}
 		>
 		<h1>Salle : {room}</h1>
-		<RoomAudioRenderer/>
+		<QueueDisplay room={room} />
+		<RoomAudioRenderer />
 		</LiveKitRoom>
 	);
 }

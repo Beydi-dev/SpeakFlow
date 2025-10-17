@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import { Server, Socket } from 'socket.io';
 import { Room, RoomServiceClient, AccessToken } from 'livekit-server-sdk';
 import { databaseService } from '../services/databaseService'
+import { QueueUser, addToQueue, getOrCreateRoomQueue, removeFromQueue, popFromQueue, getNextInQueue } from '../services/queueService';
 
 dotenv.config();
 
@@ -33,7 +34,6 @@ export const setupSocketHandlers = (io: Server, socket: Socket) => {
     console.log('🔌 Client connecté:', socket.id)
     
     // HANDLERS
-
 	socket.on('join_room', async (data: {room: string, identity: string}) => {
     try {
         console.log('📨 join_room received:', data)
@@ -69,4 +69,70 @@ export const setupSocketHandlers = (io: Server, socket: Socket) => {
         socket.emit('error', { message: 'Erreur lors de la connexion' })
     }
 })
+
+// Demande de parole
+socket.on('request_speak', (data: { room: string, identity: string}) => {
+	console.log('📢 request_speak reçu:', data);
+	if(!data.room || !data.identity) {
+		console.log('error')
+		socket.emit('error', {message: 'Room et identité requis'});
+		return;
+	}
+	const newUser: QueueUser = {
+		socketId: socket.id,
+		identity: data.identity,
+		room: data.room,
+		joined_at: Date.now(),
+		userScore: 0
+	};
+	addToQueue(newUser);
+	
+	// Récupérer le tableau complet 
+	const roomQueue = getOrCreateRoomQueue(data.room);
+	// Transformer ce tableau
+	const identities = roomQueue.map(user => user.identity);
+	
+	io.to(data.room).emit('queue_update', {queue: identities });
+	console.log('📋 File mise à jour:', identities);
+});
+
+// Annulation demande de parole
+socket.on('cancel_request', (data: {room: string}) => {
+	console.log('📢 cancel_request reçu:', data);
+	if(!data.room) {
+		console.log('error')
+		return;
+	}
+	removeFromQueue(socket.id, data.room);
+
+	const roomQueue = getOrCreateRoomQueue(data.room);
+	const identities = roomQueue.map(user => user.identity);
+
+	io.to(data.room).emit('queue_update', {queue: identities });
+	console.log('📋 File mise à jour:', identities);
+});
+
+/*
+// fin de parole utilisateur
+socket.on('end_speak', (data: {room: string}) =>{
+	console.log('📢 end_speak reçu:', data);
+	if(!data.room) {
+		console.log('error')
+		return;
+	}
+	popFromQueue(data.room);
+	const nextSpeaker = getNextInQueue(data.room);
+
+	if (nextSpeaker) {
+		io.
+	}
+
+	const roomQueue = getOrCreateRoomQueue(data.room);
+	const identities = roomQueue.map(user => user.identity);
+
+	io.to(data.room).emit('queue_update', {queue: identities });
+	console.log('📋 File mise à jour:', identities);
+});
+*/
+
 }

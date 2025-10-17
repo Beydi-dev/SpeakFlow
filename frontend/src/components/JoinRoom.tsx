@@ -23,12 +23,13 @@ function JoinRoom({ onJoinSuccess }: JoinRoomProps) {
                         Toute variable/prop utilisée dans useEffect doit être ici
 					 */
 
-	function handleSubmit(e: React.FormEvent) {
-		e.preventDefault();
+	function handleSubmit(e: React.FormEvent) { // Prendre en charge comportement par défaut du formulaire
+		e.preventDefault(); // Empêche rechargement de page
 		socket.emit('join_room', {
 			room: roomName,
 			identity: identity
 		});
+		// Amélioration : gérer roomName et identity vides
 	}
 
 

@@ -4,12 +4,16 @@
 
 /* Fonctions à coder : 
 - addToQueue(entry) -> retourne position
-- removeFromQueue(sid) -> enlever l'utilisateur de la queue
+- removeFromQueue(socketId) -> enlever l'utilisateur de la queue
 - getNextInQueue(roomId) -> retourne le prochain utilisateur dans la queue
 
-getQueueForRoom(roomId) -> retourne la queue pour une salle spécifique */
+- getQueueForRoom(roomId) -> retourne la queue pour une salle spécifique
+- roomQueues.delete(room)
+- AJOUTER LA LOGIQUE POUR USERE SCORE
+*/
+
 export interface QueueUser {
-    sid: string;
+    socketId: string;
     identity: string; // user-specified unique identifier for the participant
     room: string;
     joined_at: number; // timestamp int64
@@ -30,22 +34,22 @@ export function getOrCreateRoomQueue(room: string): QueueUser[] {
 // Ajout d'un user dans la queue
 export function addToQueue(newUser: QueueUser): number {
     const roomQueue = getOrCreateRoomQueue(newUser.room);
-    const exists = roomQueue.find(q => q.sid === newUser.sid); // Check si user est déja dans la queue
+    const exists = roomQueue.find(q => q.socketId === newUser.socketId); // Check si user est déja dans la queue
     if (exists) {
         console.log('Utilisateur déjà dans la file');
-        return roomQueue.indexOf(exists) + 1; // Position dans la queue
+        return roomQueue.indexOf(exists) + 1; // Position réelle dans la queue
     }
     roomQueue.push(newUser);
     return roomQueue.length; // Retourne la position dans la queue
 }
 
 // Suppression d'un user dans la queue
-export function removeFromQueue(sid: string, room: string): QueueUser | undefined {
+export function removeFromQueue(socketId: string, room: string): QueueUser | undefined {
     const roomQueue = roomQueues.get(room);
     if (!roomQueue || roomQueue.length === 0) {
         return undefined; // Queue vide ou room inexistante
     }
-    const index = roomQueue.findIndex(q => q.sid === sid);
+    const index = roomQueue.findIndex(q => q.socketId === socketId);
     if (index === -1) {
         return undefined; // User non trouvé
     }
