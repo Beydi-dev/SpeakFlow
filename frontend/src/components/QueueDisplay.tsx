@@ -1,42 +1,70 @@
 import { useState, useEffect } from "react";
-import socket from '../services/socket';
+import socket from "../services/socket";
 import { useLocalParticipant } from "@livekit/components-react";
 
 type QueueDisplayProps = {
-	room: string;
+  room: string;
 };
 
 function QueueDisplay({ room }: QueueDisplayProps) {
-	const { localParticipant } = useLocalParticipant();
-	const [queue, setQueue] = useState<string[]>([]); // tableau vide de strings au départ
+  const { localParticipant } = useLocalParticipant();
+  const [queue, setQueue] = useState<string[]>([]); // tableau vide de strings au départ
 
-	function handleRequestSpeak() {
-		socket.emit('request_speak', {
-			room: room,
-			identity: localParticipant.identity
-		});
-	}
-	
-	function handleCancelSpeak() {
-		socket.emit('cancel_request', {
-			room: room
-		});
-	}
+  function handleRequestSpeak() {
+    socket.emit("request_speak", {
+      room: room,
+      identity: localParticipant.identity,
+    });
+  }
 
-	useEffect(() => {
-			socket.on('queue_update', (data) => {
-				setQueue(data.queue); // Met à jour le state queue
-				console.log(data); // Pour voir ce qui arrive
-			});
+  function handleCancelSpeak() {
+    localParticipant.setMicrophoneEnabled(false);
+    socket.emit("cancel_request", {
+      room: room,
+    });
+  }
 
-			return () => {
-				socket.off('queue_update'); // Arrête d'écouter
-			}
-		}, []);
+  function handleEndSpeak() {
+    localParticipant.setMicrophoneEnabled(false);
+    socket.emit("end_speak", {
+      room: room,
+    });
+  }
 
-	return (
+  useEffect(() => {
+    if (localParticipant) {
+      const timer = setTimeout(() => {
+        localParticipant.setMicrophoneEnabled(false);
+        console.log("🔇 Micro muté au démarrage");
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  useEffect(() => {
+    socket.on("queue_update", (data) => {
+      setQueue(data.queue); // Met à jour le state queue
+      console.log(data); // Pour voir ce qui arrive
+    });
+
+    socket.on("grant_speak", (data) => {
+      console.log("🎤 Grant reçu, participant:", localParticipant);
+
+      // SEULEMENT si c'est moi, je unmute
+      if (localParticipant && data.identity === localParticipant.identity) {
+        localParticipant.setMicrophoneEnabled(true);
+        console.log("✅ MON micro unmute");
+      }
+    });
+
+    return () => {
+      socket.off("queue_update");
+      socket.off("grant_speak"); // Cleanup
+    };
+  }, [localParticipant]);
+
+  return (
     <div className="max-w-2xl mx-auto space-y-4">
-      
       {/* Carte 1 : Header avec titre et compteur */}
       <div className="rounded-xl bg-white p-6 shadow-lg">
         <div className="flex justify-between items-center">
@@ -48,36 +76,46 @@ function QueueDisplay({ room }: QueueDisplayProps) {
           </span>
         </div>
       </div>
-      
+
       {/* Carte 2 : Bouton Demander OU Votre position */}
       {!queue.includes(localParticipant.identity) ? (
-        // Si PAS dans la file → Bouton Demander
+        // CAS 1 : Pas dans la file → Bouton NOIR
         <div className="rounded-xl bg-white p-6 shadow-lg">
-          <button 
+          <button
             onClick={handleRequestSpeak}
             className="w-full bg-black text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
           >
             ✋ Demander la parole
           </button>
         </div>
+      ) : queue.indexOf(localParticipant.identity) === 0 ? (
+        // CAS 2 : Premier (#1) → Bouton VERT
+        <div className="rounded-xl bg-white p-6 shadow-lg">
+          <button
+            onClick={handleEndSpeak}
+            className="w-full bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+          >
+            ✅ Terminer mon tour
+          </button>
+        </div>
       ) : (
-        // Si dans la file → Bouton Annuler (ROUGE)
-    <div className="rounded-xl bg-white p-6 shadow-lg">
-      <button 
-        onClick={handleCancelSpeak}  // ← Ta fonction
-        className="w-full bg-red-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-red-700 transition-colors flex items-center justify-center gap-2"  // ← Rouge !
-      >
-        ❌ Annuler ma demande
-      </button>
-    </div>
-)}
-      
+        // CAS 3 : Dans la file mais pas premier → Bouton ROUGE
+        <div className="rounded-xl bg-white p-6 shadow-lg">
+          <button
+            onClick={handleCancelSpeak} // ← Ta fonction
+            className="w-full bg-red-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-red-700 transition-colors flex items-center justify-center gap-2" // ← Rouge !
+          >
+            ❌ Annuler ma demande
+          </button>
+        </div>
+      )}
+
       {/* Carte 3 : Ordre de passage */}
       <div className="rounded-xl bg-white p-6 shadow-lg">
         <h3 className="font-semibold text-gray-700 mb-4">
           Ordre de passage (FIFO)
         </h3>
-        
+
         {queue.length === 0 ? (
           <p className="text-gray-500 text-center py-4">
             Aucune demande en attente
@@ -85,12 +123,12 @@ function QueueDisplay({ room }: QueueDisplayProps) {
         ) : (
           <div className="space-y-3">
             {queue.map((identity, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className={`p-4 rounded-lg ${
-                  identity === localParticipant.identity 
-                    ? 'bg-blue-50 border-2 border-blue-200' 
-                    : 'bg-gray-50 border border-gray-200'
+                  identity === localParticipant.identity
+                    ? "bg-blue-50 border-2 border-blue-200"
+                    : "bg-gray-50 border border-gray-200"
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -100,7 +138,9 @@ function QueueDisplay({ room }: QueueDisplayProps) {
                   <span className="font-medium text-gray-900">
                     {identity}
                     {identity === localParticipant.identity && (
-                      <span className="ml-2 text-blue-600 text-sm font-semibold">(Vous)</span>
+                      <span className="ml-2 text-blue-600 text-sm font-semibold">
+                        (Vous)
+                      </span>
                     )}
                   </span>
                 </div>
@@ -109,7 +149,6 @@ function QueueDisplay({ room }: QueueDisplayProps) {
           </div>
         )}
       </div>
-      
     </div>
   );
 }

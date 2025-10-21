@@ -1,1 +1,1 @@
-export class databaseService{}
+export class databaseService {}

@@ -1,6 +1,7 @@
 # Suggestions d'améliorations pour la gestion des queues (SpeakFlow)
 
 Ce fichier regroupe des recommandations et des exemples concrets pour :
+
 - encapsuler l'accès à `roomQueues` (préserver les invariants)
 - éviter les interférences asynchrones lors des modifications (concurrence logique)
 - préparer l'évolution vers une persistance (DB / Redis)
@@ -13,6 +14,7 @@ Ce fichier regroupe des recommandations et des exemples concrets pour :
 - Solution : exposer une API claire (helpers) qui centralise toutes les opérations sur la queue.
 
 Exemples de fonctions à exposer :
+
 - `getQueue(room: string): QueueUser[]` — renvoie une copie ou une vue immuable de la queue
 - `addToQueue(user: QueueUser): number` — ajoute un user (vérifie doublon par `sid`) et retourne la position
 - `removeFromQueue(sid: string, room: string): QueueUser | undefined` — supprime et retourne l'utilisateur
@@ -21,6 +23,7 @@ Exemples de fonctions à exposer :
 - `cleanupEmptyRoom(room: string): void` — supprime la clé Map si la queue est vide
 
 Ces helpers garantissent :
+
 - invariants (pas de doublons)
 - nettoyage mémoire (suppression de rooms vides)
 - point unique pour ajouter logs / métriques / persistence
@@ -33,6 +36,7 @@ Ces helpers garantissent :
 - Exemple de bug courant : deux sockets appellent `getOrCreateRoomQueue()` puis `push()` presque simultanément — si la logique de vérification et d'ajout n'est pas atomique, on peut obtenir des doublons ou un ordre indésirable.
 
 Principes pour éviter ces problèmes :
+
 1. Centraliser la logique critique dans des fonctions synchrones (lecture + validation + modification dans la même fonction). Par exemple, `addToQueue()` fait tout : vérifier doublon, push, écrire la Map.
 2. Si la modification nécessite des appels asynchrones (ex. écriture en base), sérialiser ces opérations : soit via une file d'opérations, soit via un petit mutex asynchrone pour la section critique.
 
@@ -53,7 +57,7 @@ export function getQueue(room: string): QueueUser[] {
 export function addToQueue(user: QueueUser): number {
   const room = user.room;
   const q = roomQueues.get(room) ?? [];
-  const exists = q.find(u => u.sid === user.sid);
+  const exists = q.find((u) => u.sid === user.sid);
   if (exists) {
     return q.indexOf(exists) + 1;
   }
@@ -62,10 +66,13 @@ export function addToQueue(user: QueueUser): number {
   return q.length;
 }
 
-export function removeFromQueue(sid: string, room: string): QueueUser | undefined {
+export function removeFromQueue(
+  sid: string,
+  room: string,
+): QueueUser | undefined {
   const q = roomQueues.get(room);
   if (!q) return undefined;
-  const idx = q.findIndex(u => u.sid === sid);
+  const idx = q.findIndex((u) => u.sid === sid);
   if (idx === -1) return undefined;
   const [removed] = q.splice(idx, 1);
   if (q.length === 0) roomQueues.delete(room);
@@ -102,7 +109,7 @@ class SimpleMutex {
   private _waiters: Array<() => void> = [];
   async lock() {
     if (this._locked) {
-      await new Promise<void>(r => this._waiters.push(r));
+      await new Promise<void>((r) => this._waiters.push(r));
     }
     this._locked = true;
   }
@@ -137,14 +144,21 @@ Ce pattern garantit qu'une seule opération critique tourne à la fois.
 - Utiliser un ack (callback) côté client pour confirmer la réussite/erreur :
 
 Client :
+
 ```ts
-socket.emit('join_room', payload, (res) => {
-  if (res.ok) onJoinSuccess(res.token, payload.room, res.livekitUrl);
-  else /* afficher erreur */;
+socket.emit("join_room", payload, (res) => {
+  if (res.ok)
+    onJoinSuccess(
+      res.token,
+      payload.room,
+      res.livekitUrl,
+    ); /* afficher erreur */
+  else;
 });
 ```
 
 Serveur :
+
 ```ts
 socket.on('join_room', async (data, ack) => {
   if (!isValid(data)) return ack({ ok: false, error: 'invalid' });
