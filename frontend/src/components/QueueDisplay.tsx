@@ -36,7 +36,7 @@ function QueueDisplay({ room }: QueueDisplayProps) {
       const timer = setTimeout(() => {
         localParticipant.setMicrophoneEnabled(false);
         console.log("🔇 Micro muté au démarrage");
-      }, 300);
+      }, 500);
       return () => clearTimeout(timer);
     }
   }, []);
@@ -64,7 +64,7 @@ function QueueDisplay({ room }: QueueDisplayProps) {
   }, [localParticipant]);
 
   return (
-    <div className="max-w-2xl mx-auto space-y-4">
+    <div className="space-y-4">
       {/* Carte 1 : Header avec titre et compteur */}
       <div className="rounded-xl bg-white p-6 shadow-lg">
         <div className="flex justify-between items-center">
@@ -102,7 +102,7 @@ function QueueDisplay({ room }: QueueDisplayProps) {
         // CAS 3 : Dans la file mais pas premier → Bouton ROUGE
         <div className="rounded-xl bg-white p-6 shadow-lg">
           <button
-            onClick={handleCancelSpeak} // ← Ta fonction
+            onClick={handleCancelSpeak} // appelle la fonction
             className="w-full bg-red-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-red-700 transition-colors flex items-center justify-center gap-2" // ← Rouge !
           >
             ❌ Annuler ma demande

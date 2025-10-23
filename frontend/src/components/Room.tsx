@@ -1,9 +1,9 @@
 import { LiveKitRoom } from "@livekit/components-react";
-//import { RoomAudioRenderer } from "@livekit/components-react";
 //import ParticipantsList from "./ParticipantsList";
-import { AudioConference } from "@livekit/components-react";
+//import { AudioConference } from "@livekit/components-react";
 import "@livekit/components-styles";
-import QueueDisplay from "./QueueDisplay";
+//import QueueDisplay from "./QueueDisplay";
+import RoomContent from "./RoomContent";
 
 type RoomProps = {
   token: string;
@@ -13,19 +13,19 @@ type RoomProps = {
 
 function Room({ token, room, livekitUrl }: RoomProps) {
   return (
-    <LiveKitRoom
-      serverUrl={livekitUrl}
-      token={token}
-      audio={true}
-      connect={true}
-      connectOptions={{
-        autoSubscribe: true,
-      }}
-    >
-      <h1>Salle : {room}</h1>
-      <QueueDisplay room={room} />
-      <AudioConference />
-    </LiveKitRoom>
+    <div className="min-h-screen bg-gray-50">
+      <LiveKitRoom
+        serverUrl={livekitUrl}
+        token={token}
+        audio={true}
+        connect={true}
+        connectOptions={{
+          autoSubscribe: true,
+        }}
+      >
+        <RoomContent room={room} />
+      </LiveKitRoom>
+    </div>
   );
 }
 
