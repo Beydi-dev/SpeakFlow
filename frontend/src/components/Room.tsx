@@ -1,5 +1,4 @@
 import { LiveKitRoom } from "@livekit/components-react";
-//import ParticipantsList from "./ParticipantsList";
 //import { AudioConference } from "@livekit/components-react";
 import "@livekit/components-styles";
 //import QueueDisplay from "./QueueDisplay";
@@ -9,9 +8,10 @@ type RoomProps = {
   token: string;
   room: string;
   livekitUrl: string;
+  onLeave?: () => void
 };
 
-function Room({ token, room, livekitUrl }: RoomProps) {
+function Room({ token, room, livekitUrl, onLeave }: RoomProps) {
   return (
     <div className="min-h-screen bg-gray-50">
       <LiveKitRoom
@@ -23,7 +23,11 @@ function Room({ token, room, livekitUrl }: RoomProps) {
           autoSubscribe: true,
         }}
       >
-        <RoomContent room={room} />
+        <RoomContent
+		room={room}
+		onLeave={onLeave}
+		/>
+		
       </LiveKitRoom>
     </div>
   );
