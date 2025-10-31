@@ -1,11 +1,9 @@
 {
   "dependencies": {
-    "@fortawesome/free-solid-svg-icons": "^7.1.0",
-    "@fortawesome/react-fontawesome": "^3.1.0",
-    "dotenv": "^17.2.2"
+    "react-router": "^7.9.5",
+    "react-router-dom": "^7.9.5"
   },
   "devDependencies": {
-    "@types/dotenv": "^6.1.1",
     "prettier": "^3.6.2"
   }
 }

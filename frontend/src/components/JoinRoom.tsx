@@ -36,7 +36,20 @@ function JoinRoom({ onJoinSuccess }: JoinRoomProps) {
   // Code html ici
   return (
     <form onSubmit={handleSubmit}>
-      <h1>Rejoindre une salle</h1>
+		<header className="bg-white border-b border-gray-300 px-6 py-4">
+			<div className="flex justify-between items-center">
+				<h1 className="text-xl font-semibold text-gray-900">Rejoindre une salle</h1>
+				
+				<div className="w-32 flex">
+					<button
+					// code du bouton
+					className="whitespace-nowrap bg-white border-2 border-gray-400 text-black px-2 py-2 rounded-lg hover:border-red-600 hover:text-red-600 transition-colors"
+					>
+						Se déconnecter 
+						</button>
+				</div>
+			</div>
+		</header>
       <input
         type="text"
         id="roomName"

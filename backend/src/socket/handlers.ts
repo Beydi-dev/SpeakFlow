@@ -157,4 +157,22 @@ export const setupSocketHandlers = (io: Server, socket: Socket) => {
     io.to(data.room).emit("queue_update", { queue: identities });
     console.log("📋 File mise à jour:", identities);
   });
+
+
+  // Quitter la salle
+  socket.on("leave_room", (data: { room: string }) => {
+	console.log("📢 cancel_request reçu:", data);
+    if (!data.room) {
+      console.log("error");
+      return;
+    }
+    removeFromQueue(socket.id, data.room);
+
+    const roomQueue = getOrCreateRoomQueue(data.room);
+    const identities = roomQueue.map((user) => user.identity);
+
+    if (identities.length === 1)
+      io.to(data.room).emit("queue_update", { queue: identities });
+    console.log("📋 File mise à jour:", identities);
+  });
 };
