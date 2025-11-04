@@ -24,6 +24,6 @@ export default function Wrapper({ children }: { children: React.ReactNode }) {
 		if (authenticated) {
 			return <>{children}</>;
 		}
-		return <Navigate to="/login" />;
+		return <Navigate to="/connexion" />;
 	}
 }

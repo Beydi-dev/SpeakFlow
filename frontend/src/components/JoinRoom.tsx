@@ -1,14 +1,27 @@
 import { useState, useEffect } from "react";
+import React from "react";
 import socket from "../services/socket";
+import { supabase } from "../lib/supabase";
+import { useNavigate } from "react-router-dom";
 
 type JoinRoomProps = {
   onJoinSuccess: (token: string, room: string, livekitUrl: string) => void;
 };
 
 function JoinRoom({ onJoinSuccess }: JoinRoomProps) {
-  // On créé d'abord les états
+  
+	const navigate = useNavigate();
+
+	const signOut = async () => {
+		const { error } = await supabase.auth.signOut();
+		if (error) throw error;
+		navigate("/connexion");
+	};
+	
+	// On créé d'abord les états
   const [roomName, setRoomName] = useState("");
   const [identity, setIdentity] = useState("");
+  const [password, setPassword] = useState("");
 
   useEffect(() => {
     socket.on("room_joined", (data) => {
@@ -42,7 +55,7 @@ function JoinRoom({ onJoinSuccess }: JoinRoomProps) {
 				
 				<div className="w-32 flex">
 					<button
-					// code du bouton
+					onClick={signOut}
 					className="whitespace-nowrap bg-white border-2 border-gray-400 text-black px-2 py-2 rounded-lg hover:border-red-600 hover:text-red-600 transition-colors"
 					>
 						Se déconnecter 
@@ -53,7 +66,7 @@ function JoinRoom({ onJoinSuccess }: JoinRoomProps) {
       <input
         type="text"
         id="roomName"
-        placeholder="Nom de la salle"
+        placeholder="nom de la salle"
         value={roomName}
         onChange={(e) => setRoomName(e.target.value)}
         required
@@ -68,6 +81,16 @@ function JoinRoom({ onJoinSuccess }: JoinRoomProps) {
         onChange={(e) => setIdentity(e.target.value)}
         required
         minLength={1}
+      />
+	  
+	  <input
+        type="roomPin"
+        id="rommPassword"
+        placeholder="mot de passe"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+        minLength={4}
       />
 
       <button>Rejoindre</button>
