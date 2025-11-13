@@ -1,30 +1,27 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import JoinRoom from "./components/JoinRoom";
 import Room from "./components/Room";
-import { supabase } from "./lib/supabase";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./components/Login"
 import SignUp from "./components/SignUp"
 import Test from "./components/Test"
 import Wrapper from "./components/Wrapper";
+import Landing from "./components/Landing";
 
 
 function App() {
 	// On créé d'abord les états
-	const [isConnected, setIsConnected] = useState(false);
 	const [token, setToken] = useState("");
 	const [roomName, setRoomName] = useState("");
 	const [livekitUrl, setLiveKitUrl] = useState("");
 
 	function handleJoinSuccess(token: string, room: string, livekitUrl: string) {
-		setIsConnected(true);
 		setToken(token);
 		setRoomName(room);
 		setLiveKitUrl(livekitUrl);
 	}
 
 	function handleLeaveRoom(): void {
-		setIsConnected(false);
 		setToken("");
 		setRoomName("");
 		setLiveKitUrl("");
@@ -34,7 +31,7 @@ function App() {
 		<BrowserRouter>
 			<Routes>
 
-				<Route path="/" element={<Navigate to="/connexion" />} />
+				<Route path="/" element={<Landing />} />
 
 
 				{/* login */}
