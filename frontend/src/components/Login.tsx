@@ -3,7 +3,7 @@ import { supabase } from "../lib/supabase";
 import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from './AuthLayout';
 
-export default function Login() {  // ← Corrigé : "Login" au lieu de "SignUp"
+export default function Login() {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [message, setMessage] = useState("");

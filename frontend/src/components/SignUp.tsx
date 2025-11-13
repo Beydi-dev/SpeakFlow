@@ -19,6 +19,7 @@ export default function SignUp() {
 			password: password,
 		});
 
+
 		if (error) {
 			setMessage(error.message);
 			setLoading(false);

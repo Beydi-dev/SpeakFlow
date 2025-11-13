@@ -1,4 +1,5 @@
 import { useLocalParticipant, useParticipants, RoomAudioRenderer, useRoomContext } from "@livekit/components-react";
+import {  useEffect } from "react";
 import QueueDisplay from "./QueueDisplay";
 import socket from '../services/socket';
 
@@ -19,6 +20,7 @@ function handleLeave() {
 	livekitRoom.disconnect();
 	onLeave?.();
 }
+
 
   return (
     <>
