@@ -18,7 +18,8 @@
     "typescript": "^5.9.2"
   },
   "scripts": {
-    "dev": "ts-node-dev src/server.ts",
-    "start": "ts-node src/server.ts"
-  }
+  "dev": "ts-node-dev src/server.ts",
+  "build": "tsc",
+  "start": "node dist/server.js"
+}
 }
