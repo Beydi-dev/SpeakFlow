@@ -5,7 +5,6 @@ import { supabase } from "./lib/supabase";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./components/Login"
 import SignUp from "./components/SignUp"
-import Test from "./components/Test"
 import Wrapper from "./components/Wrapper";
 
 
@@ -62,7 +61,6 @@ function App() {
 						</Wrapper>
 					}
 				/>
-			<Route path="/test" element={<Test />} />
 
 		</Routes>
 
