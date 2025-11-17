@@ -125,9 +125,8 @@ export const setupSocketHandlers = (io: Server, socket: Socket) => {
 
     const roomQueue = getOrCreateRoomQueue(data.room);
     const identities = roomQueue.map((user) => user.identity);
-
-    if (identities.length === 1)
-      io.to(data.room).emit("queue_update", { queue: identities });
+	
+	io.to(data.room).emit("queue_update", { queue: identities });
     console.log("📋 File mise à jour:", identities);
   });
 
